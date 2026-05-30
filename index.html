@@ -21,35 +21,50 @@
             </div>
         </header>
 
-        <!-- 分類標籤 -->
         <div id="filterBar" class="flex flex-wrap justify-center gap-3 mb-8">
             <button class="px-4 py-2 bg-purple-600 text-white rounded-full text-sm font-bold shadow-md" onclick="filterData('全部', this)">全部</button>
-            <button class="px-4 py-2 bg-white text-gray-600 border border-gray-200 rounded-full text-sm font-medium hover:bg-gray-100" onclick="filterData('內容創作', this)">內容創作</button>
-            <button class="px-4 py-2 bg-white text-gray-600 border border-gray-200 rounded-full text-sm font-medium hover:bg-gray-100" onclick="filterData('筆記精煉', this)">筆記精煉</button>
         </div>
 
         <div id="cardGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <!-- 預覽資料將由 JavaScript 渲染 -->
+            <p class="text-center col-span-full text-gray-500">正在載入寶庫資料...</p>
         </div>
     </div>
 
     <script>
-        // 測試資料庫
-        const data = [
-            { title: "意義單詞發想", category: "內容創作", content: "將文章的重點部分，尋找一個代表性英文字母，並解釋其與文章核心意義的連結。" },
-            { title: "品牌名稱生成", category: "內容創作", content: "完成 ChatGPT 角色定義後，依據「品牌定義」與「產品介紹」發想 5 個吸引人的品牌名稱。" },
-            { title: "長文精華摘要", category: "筆記精煉", content: "為這一篇長篇文章，進行以下四個步驟：提出核心論點、列出關鍵數據、總結作者觀點、給出實踐建議。" },
-            { title: "書籍知識煉金", category: "筆記精煉", content: "請對文章啟動【銓煙煉金管線】，一次執行四步驟整合，並輸出成條列式筆記。" },
-            { title: "影片逐字稿校對", category: "內容創作", content: "你的角色是一位「逐字稿校對員」，請協助修正口語贅字並標記出重點時間軸。" }
-        ];
+        let allData = [];
+
+        async function fetchData() {
+            try {
+                // ！！！請將此處替換為你部署的 Web App URL ！！！
+                const url = 'YOUR_GOOGLE_APPS_SCRIPT_URL_HERE';
+                const response = await fetch(url);
+                allData = await response.json();
+                
+                // 初始化分類標籤
+                const categories = ['全部', ...new Set(allData.map(item => item.category))];
+                const filterBar = document.getElementById('filterBar');
+                filterBar.innerHTML = '';
+                categories.forEach((cat, index) => {
+                    const btn = document.createElement('button');
+                    btn.className = index === 0 ? "px-4 py-2 bg-purple-600 text-white rounded-full text-sm font-bold shadow-md" : "px-4 py-2 bg-white text-gray-600 border border-gray-200 rounded-full text-sm font-medium hover:bg-gray-100";
+                    btn.textContent = cat;
+                    btn.onclick = () => filterData(cat, btn);
+                    filterBar.appendChild(btn);
+                });
+
+                renderCards();
+            } catch (error) {
+                document.getElementById('cardGrid').innerHTML = '<p class="text-center text-red-500">資料載入失敗，請檢查 API 設定。</p>';
+            }
+        }
 
         function renderCards(filter = '全部', query = '') {
             const cardGrid = document.getElementById('cardGrid');
             cardGrid.innerHTML = '';
             
-            const filtered = data.filter(p => 
+            const filtered = allData.filter(p => 
                 (filter === '全部' || p.category === filter) &&
-                (p.title.includes(query) || p.content.includes(query))
+                (p.title.toLowerCase().includes(query.toLowerCase()) || p.content.toLowerCase().includes(query.toLowerCase()))
             );
 
             filtered.forEach(p => {
@@ -59,7 +74,7 @@
                     <span class="text-xs font-bold text-purple-600 uppercase mb-2 block">${p.category}</span>
                     <h3 class="text-xl font-bold mb-3">${p.title}</h3>
                     <p class="text-gray-600 text-sm mb-4 line-clamp-4">${p.content}</p>
-                    <button onclick="copyToClipboard('${p.content}')" class="w-full py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 font-bold">複製 Prompt</button>
+                    <button onclick="copyToClipboard('${p.content.replace(/'/g, "\\'")}')" class="w-full py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 font-bold">複製 Prompt</button>
                 `;
                 cardGrid.appendChild(card);
             });
@@ -81,7 +96,7 @@
             alert("Prompt 已複製到剪貼簿！");
         }
 
-        renderCards();
+        fetchData();
     </script>
 </body>
 </html>
