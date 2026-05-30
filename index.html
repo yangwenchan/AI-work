@@ -1,102 +1,384 @@
-<!DOCTYPE html>
-<html lang="zh-TW">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Prompt 智能寶庫</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        .card-shadow { box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
-        .line-clamp-4 { display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
-    </style>
-</head>
-<body class="bg-gray-50 text-gray-800 font-sans">
 
-    <div class="max-w-6xl mx-auto px-4 py-8">
-        <header class="text-center mb-10">
-            <h1 class="text-3xl font-bold text-gray-900 mb-4">🚀 AI Prompt 智能寶庫</h1>
-            <div class="max-w-xl mx-auto">
-                <input type="text" id="searchInput" placeholder="🔍 搜尋提示詞..." 
-                    class="w-full px-4 py-3 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-500 shadow-sm">
-            </div>
-        </header>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --blue:#2563EB;--blue-l:#EFF6FF;--blue-m:#BFDBFE;
+  --purple:#7C3AED;--text:#0F172A;--text2:#475569;--text3:#94A3B8;
+  --bg:#F8FAFC;--surf:#fff;--bdr:#E2E8F0;--bdr2:#CBD5E1;
+  --r:14px;--rsm:10px;--rpill:999px;
+}
+body{font-family:system-ui,'Noto Sans TC',sans-serif;background:var(--bg);color:var(--text);font-size:14px}
 
-        <div id="filterBar" class="flex flex-wrap justify-center gap-3 mb-8">
-            <button class="px-4 py-2 bg-purple-600 text-white rounded-full text-sm font-bold shadow-md" onclick="filterData('全部', this)">全部</button>
-        </div>
+.nav{height:52px;background:rgba(255,255,255,0.95);border-bottom:1px solid var(--bdr);display:flex;align-items:center;padding:0 16px;gap:16px;position:sticky;top:0;z-index:50}
+.nav-logo{font-weight:800;font-size:13px;display:flex;align-items:center;gap:7px;color:var(--text);text-decoration:none;cursor:pointer}
+.logo-icon{width:26px;height:26px;border-radius:7px;background:linear-gradient(135deg,#2563EB,#7C3AED);display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0}
+.nav-tabs{display:flex;gap:2px;flex:1}
+.nav-tab{padding:5px 11px;border-radius:8px;font-size:12px;font-weight:500;cursor:pointer;border:none;background:none;color:var(--text2);transition:all 0.15s;font-family:inherit}
+.nav-tab:hover{background:var(--blue-l);color:var(--blue)}
+.nav-tab.active{background:var(--blue-l);color:var(--blue);font-weight:600}
+.nav-cta{margin-left:auto;padding:5px 12px;background:var(--blue);color:#fff;border:none;border-radius:var(--rpill);font-size:11px;font-weight:600;cursor:pointer;font-family:inherit}
 
-        <div id="cardGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <p class="text-center col-span-full text-gray-500">正在載入寶庫資料...</p>
-        </div>
+.page{display:none;flex-direction:column;min-height:calc(100vh - 52px)}
+.page.active{display:flex}
+
+/* HOME */
+.hero{padding:36px 20px 28px;text-align:center;background:var(--surf);border-bottom:1px solid var(--bdr)}
+.hero-badge{display:inline-flex;align-items:center;gap:5px;background:var(--blue-l);color:var(--blue);border:1px solid var(--blue-m);font-size:11px;font-weight:600;padding:4px 12px;border-radius:var(--rpill);margin-bottom:14px}
+.hero h1{font-size:24px;font-weight:800;letter-spacing:-0.03em;line-height:1.2;margin-bottom:10px}
+.hero h1 span{background:linear-gradient(135deg,#2563EB,#7C3AED);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero p{font-size:12px;color:var(--text2);max-width:400px;margin:0 auto 20px;line-height:1.6}
+.hero-btns{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.btn-p{padding:8px 18px;background:var(--blue);color:#fff;border:none;border-radius:var(--rpill);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;transition:all 0.2s}
+.btn-p:hover{background:#1D4ED8}
+.btn-o{padding:8px 18px;background:transparent;color:var(--text);border:1.5px solid var(--bdr2);border-radius:var(--rpill);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;transition:all 0.2s}
+.btn-o:hover{border-color:var(--blue);color:var(--blue);background:var(--blue-l)}
+
+.stats-row{display:flex;justify-content:center;gap:32px;padding:16px 20px;background:var(--surf);border-bottom:1px solid var(--bdr)}
+.stat-item{text-align:center}
+.stat-num{font-size:20px;font-weight:800;color:var(--blue)}
+.stat-lbl{font-size:10px;color:var(--text3);font-weight:500;margin-top:1px}
+
+.section{padding:24px 20px;max-width:100%}
+.sec-hdr{text-align:center;margin-bottom:18px}
+.sec-hdr h2{font-size:17px;font-weight:800;letter-spacing:-0.02em;margin-bottom:4px}
+.sec-hdr p{font-size:11px;color:var(--text2)}
+
+.cards-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:14px}
+.card{background:var(--surf);border-radius:var(--r);border:1.5px solid var(--bdr);display:flex;flex-direction:column;overflow:hidden;transition:box-shadow 0.2s,transform 0.2s}
+.card:hover{box-shadow:0 6px 20px rgba(15,23,42,0.10);transform:translateY(-2px);border-color:var(--blue-m)}
+.card-top{height:3px;background:linear-gradient(90deg,#2563EB,#7C3AED)}
+.card-body{padding:12px 13px 10px;flex:1;display:flex;flex-direction:column}
+.card-cat{display:inline-block;font-size:10px;font-weight:600;padding:2px 8px;border-radius:var(--rpill);margin-bottom:7px;width:fit-content}
+.card-title{font-size:13px;font-weight:700;margin-bottom:7px;line-height:1.35}
+.card-preview{font-size:11px;color:var(--text2);line-height:1.6;flex:1;display:-webkit-box;-webkit-line-clamp:5;-webkit-box-orient:vertical;overflow:hidden}
+.card-foot{padding:0 13px 12px}
+.copy-btn{width:100%;padding:7px;background:var(--blue);color:#fff;border:none;border-radius:var(--rsm);font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;transition:background 0.18s}
+.copy-btn:hover{background:#1D4ED8}
+.copy-btn.copied{background:#16A34A}
+
+.feat-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:4px}
+.feat-card{background:var(--surf);border:1.5px solid var(--bdr);border-radius:var(--r);padding:16px 14px}
+.feat-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:17px;margin-bottom:10px}
+.feat-card h3{font-size:12px;font-weight:700;margin-bottom:4px}
+.feat-card p{font-size:11px;color:var(--text2);line-height:1.55}
+
+/* PROMPTS PAGE */
+.page-hdr{padding:20px 20px 16px;background:var(--surf);border-bottom:1px solid var(--bdr);text-align:center}
+.page-hdr h1{font-size:20px;font-weight:800;letter-spacing:-0.02em;margin-bottom:4px}
+.page-hdr p{font-size:12px;color:var(--text2)}
+
+.search-wrap{position:relative;margin:0 auto 14px;max-width:440px}
+.search-wrap input{width:100%;padding:8px 14px 8px 34px;font-size:12px;font-family:inherit;border:1.5px solid var(--bdr);border-radius:var(--rpill);background:var(--surf);color:var(--text);outline:none;transition:border-color 0.2s}
+.search-wrap input:focus{border-color:var(--blue)}
+.search-icon{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--text3);width:14px;height:14px}
+
+.cat-bar{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-bottom:14px}
+.cat-pill{padding:4px 12px;border-radius:var(--rpill);font-size:11px;font-weight:500;cursor:pointer;border:1.5px solid var(--bdr);background:var(--surf);color:var(--text2);transition:all 0.15s;white-space:nowrap;font-family:inherit}
+.cat-pill:hover{border-color:var(--blue);color:var(--blue);background:var(--blue-l)}
+.cat-pill.active{background:var(--blue);border-color:var(--blue);color:#fff}
+
+.toolbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.result-count{font-size:11px;color:var(--text3);font-weight:500}
+.sort-sel{font-family:inherit;font-size:11px;color:var(--text2);border:1.5px solid var(--bdr);border-radius:8px;padding:4px 8px;background:var(--surf);cursor:pointer;outline:none}
+
+/* ABOUT */
+.about-hdr{padding:28px 20px 20px;background:var(--surf);border-bottom:1px solid var(--bdr);text-align:center}
+.about-hdr h1{font-size:20px;font-weight:800;letter-spacing:-0.02em;margin-bottom:8px}
+.about-hdr p{font-size:12px;color:var(--text2);max-width:380px;margin:0 auto}
+.about-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.info-card{background:var(--surf);border:1.5px solid var(--bdr);border-radius:var(--r);padding:16px 15px}
+.info-card h3{font-size:13px;font-weight:700;margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.info-card p,.info-card li{font-size:11px;color:var(--text2);line-height:1.7}
+.info-card ul{padding-left:14px}
+.info-card li{margin-bottom:2px}
+.steps{display:flex;flex-direction:column;gap:10px}
+.step{display:flex;gap:10px;align-items:flex-start}
+.step-num{width:22px;height:22px;border-radius:50%;background:var(--blue);color:#fff;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.step-text strong{display:block;font-size:11px;font-weight:600;margin-bottom:1px;color:var(--text)}
+.step-text span{font-size:10px;color:var(--text2)}
+
+.cta-row{text-align:center;margin-top:20px}
+
+footer{margin-top:auto;background:var(--surf);border-top:1px solid var(--bdr);padding:14px 20px;text-align:center;color:var(--text3);font-size:10px}
+
+.toast-bar{background:var(--text);color:#fff;text-align:center;padding:8px;font-size:11px;font-weight:500;position:fixed;bottom:0;left:0;right:0;transform:translateY(100%);transition:transform 0.3s;z-index:200}
+.toast-bar.show{transform:translateY(0)}
+
+.cc0{background:#EFF6FF;color:#1D4ED8}.cc1{background:#F5F3FF;color:#6D28D9}
+.cc2{background:#ECFDF5;color:#065F46}.cc3{background:#FEF3C7;color:#92400E}
+.cc4{background:#FCE7F3;color:#9D174D}.cc5{background:#E0F2FE;color:#075985}
+.cc6{background:#FFF7ED;color:#9A3412}.cc7{background:#F0FDF4;color:#166534}
+</style>
+
+<div class="nav">
+  <div class="nav-logo" onclick="goPage('home')">
+    <div class="logo-icon">🚀</div>
+    AI Prompt 寶庫
+  </div>
+  <div class="nav-tabs">
+    <button class="nav-tab active" onclick="goPage('home')" id="tab-home">首頁</button>
+    <button class="nav-tab" onclick="goPage('prompts')" id="tab-prompts">Prompt 庫</button>
+    <button class="nav-tab" onclick="goPage('about')" id="tab-about">關於</button>
+  </div>
+  <button class="nav-cta">📊 資料來源</button>
+</div>
+
+<!-- HOME PAGE -->
+<div class="page active" id="page-home">
+  <div class="hero">
+    <div class="hero-badge">🧠 精選 AI 提示詞資源庫</div>
+    <h1>讓 AI 真正<br><span>為你所用</span></h1>
+    <p>收錄各類高品質 Prompt，涵蓋內容創作、程式開發、筆記整理等場景，一鍵複製即可使用。</p>
+    <div class="hero-btns">
+      <button class="btn-p" onclick="goPage('prompts')">🔍 瀏覽 Prompt 庫</button>
+      <button class="btn-o">📊 開啟試算表</button>
     </div>
+  </div>
+  <div class="stats-row">
+    <div class="stat-item"><div class="stat-num" id="h-total">—</div><div class="stat-lbl">Prompt 總數</div></div>
+    <div class="stat-item"><div class="stat-num" id="h-cats">—</div><div class="stat-lbl">分類數量</div></div>
+    <div class="stat-item"><div class="stat-num">100%</div><div class="stat-lbl">免費使用</div></div>
+    <div class="stat-item"><div class="stat-num">即時</div><div class="stat-lbl">雲端同步</div></div>
+  </div>
+  <div class="section">
+    <div class="sec-hdr">
+      <h2>🔥 精選 Prompt</h2>
+      <p>從資料庫隨機推薦，每次重整都有新發現</p>
+    </div>
+    <div class="cards-grid" id="featured-grid">
+      <div style="grid-column:1/-1;text-align:center;padding:32px;color:var(--text3)">
+        <div style="width:28px;height:28px;border:2.5px solid var(--bdr);border-top-color:var(--blue);border-radius:50%;animation:spin 0.7s linear infinite;margin:0 auto 10px"></div>
+        正在載入…
+      </div>
+    </div>
+    <div class="cta-row" style="margin-top:16px">
+      <button class="btn-o" onclick="goPage('prompts')">查看全部 Prompt →</button>
+    </div>
+  </div>
+  <div class="section" style="padding-top:0">
+    <div class="sec-hdr"><h2>✨ 網站特色</h2></div>
+    <div class="feat-grid">
+      <div class="feat-card"><div class="feat-icon" style="background:#EFF6FF">🔍</div><h3>即時搜尋</h3><p>輸入關鍵字即時篩選，全面比對標題與內容。</p></div>
+      <div class="feat-card"><div class="feat-icon" style="background:#F5F3FF">🏷️</div><h3>分類瀏覽</h3><p>依場景分類，快速找到你需要的提示詞類型。</p></div>
+      <div class="feat-card"><div class="feat-icon" style="background:#ECFDF5">📋</div><h3>一鍵複製</h3><p>點擊按鈕直接複製完整 Prompt，即可使用 AI。</p></div>
+      <div class="feat-card"><div class="feat-icon" style="background:#FEF3C7">☁️</div><h3>雲端同步</h3><p>資料來自 Google Sheet，更新即時反映在網站上。</p></div>
+    </div>
+  </div>
+  <footer>🚀 AI Prompt 智能寶庫 · 資料來源 Google Sheet · 以 GitHub Pages 部署</footer>
+</div>
 
-    <script>
-        let allData = [];
+<!-- PROMPTS PAGE -->
+<div class="page" id="page-prompts">
+  <div class="page-hdr">
+    <h1>🧠 Prompt 庫</h1>
+    <p>共 <span id="p-total">—</span> 個精選提示詞，分類瀏覽或關鍵字搜尋</p>
+  </div>
+  <div class="section">
+    <div class="search-wrap">
+      <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+      <input type="text" id="search-input" placeholder="搜尋提示詞標題或內容…" autocomplete="off">
+    </div>
+    <div class="cat-bar" id="cat-bar"></div>
+    <div class="toolbar">
+      <span class="result-count" id="result-count"></span>
+      <select class="sort-sel" id="sort-sel">
+        <option value="default">預設排序</option>
+        <option value="az">標題 A → Z</option>
+        <option value="cat">依分類</option>
+      </select>
+    </div>
+    <div class="cards-grid" id="prompts-grid">
+      <div style="grid-column:1/-1;text-align:center;padding:32px;color:var(--text3)">
+        <div style="width:28px;height:28px;border:2.5px solid var(--bdr);border-top-color:var(--blue);border-radius:50%;animation:spin 0.7s linear infinite;margin:0 auto 10px"></div>
+        正在從 Google Sheet 載入…
+      </div>
+    </div>
+  </div>
+  <footer>🚀 AI Prompt 智能寶庫 · 以 GitHub Pages 部署</footer>
+</div>
 
-        async function fetchData() {
-            try {
-                // ！！！請將此處替換為你部署的 Web App URL ！！！
-                const url = 'YOUR_GOOGLE_APPS_SCRIPT_URL_HERE';
-                const response = await fetch(url);
-                allData = await response.json();
-                
-                // 初始化分類標籤
-                const categories = ['全部', ...new Set(allData.map(item => item.category))];
-                const filterBar = document.getElementById('filterBar');
-                filterBar.innerHTML = '';
-                categories.forEach((cat, index) => {
-                    const btn = document.createElement('button');
-                    btn.className = index === 0 ? "px-4 py-2 bg-purple-600 text-white rounded-full text-sm font-bold shadow-md" : "px-4 py-2 bg-white text-gray-600 border border-gray-200 rounded-full text-sm font-medium hover:bg-gray-100";
-                    btn.textContent = cat;
-                    btn.onclick = () => filterData(cat, btn);
-                    filterBar.appendChild(btn);
-                });
+<!-- ABOUT PAGE -->
+<div class="page" id="page-about">
+  <div class="about-hdr">
+    <h1>關於這個專案 🧩</h1>
+    <p>AI Prompt 智能寶庫是一個開放、持續更新的提示詞資源平台，讓每個人都能善用 AI 工具。</p>
+  </div>
+  <div class="section">
+    <div class="about-grid">
+      <div class="info-card">
+        <h3>🚀 這是什麼？</h3>
+        <ul>
+          <li>✍️ 內容創作 — 文案、品牌命名</li>
+          <li>📝 筆記精煉 — 書籍摘要整理</li>
+          <li>💻 程式應用 — 程式生成、除錯</li>
+          <li>📊 簡報表達 — 結構化提煉</li>
+          <li>🎨 圖片生成 — AI 繪圖提示詞</li>
+          <li>🗂️ 專案企劃 — 計畫書規劃</li>
+        </ul>
+      </div>
+      <div class="info-card">
+        <h3>☁️ 資料來源</h3>
+        <p>所有 Prompt 儲存於 Google Sheets，網站載入時直接從雲端讀取，無需伺服器。</p>
+        <p style="margin-top:8px;font-size:10px;color:var(--text3)">試算表需設定為「知道連結的人可以檢視」才能正常讀取。</p>
+      </div>
+      <div class="info-card">
+        <h3>📖 如何使用</h3>
+        <div class="steps">
+          <div class="step"><div class="step-num">1</div><div class="step-text"><strong>前往 Prompt 庫</strong><span>點上方導覽「Prompt 庫」</span></div></div>
+          <div class="step"><div class="step-num">2</div><div class="step-text"><strong>搜尋或篩選</strong><span>輸入關鍵字，或點分類標籤</span></div></div>
+          <div class="step"><div class="step-num">3</div><div class="step-text"><strong>複製 Prompt</strong><span>按「複製 Prompt」按鈕</span></div></div>
+          <div class="step"><div class="step-num">4</div><div class="step-text"><strong>貼到 AI 工具</strong><span>貼到 ChatGPT / Claude 即可</span></div></div>
+        </div>
+      </div>
+      <div class="info-card">
+        <h3>⚙️ 技術架構</h3>
+        <ul>
+          <li>🏗️ 純 HTML / CSS / JS</li>
+          <li>☁️ Google Sheets CSV API</li>
+          <li>🌐 GitHub Pages 靜態託管</li>
+          <li>🔤 Google Fonts 字型</li>
+        </ul>
+        <p style="margin-top:8px;font-size:10px;color:var(--text3)">更新試算表後重新整理即可看到最新內容。</p>
+      </div>
+    </div>
+    <div class="cta-row">
+      <button class="btn-p" onclick="goPage('prompts')">開始瀏覽 Prompt 庫 →</button>
+    </div>
+  </div>
+  <footer>🚀 AI Prompt 智能寶庫 · 以 GitHub Pages 部署</footer>
+</div>
 
-                renderCards();
-            } catch (error) {
-                document.getElementById('cardGrid').innerHTML = '<p class="text-center text-red-500">資料載入失敗，請檢查 API 設定。</p>';
-            }
-        }
+<div class="toast-bar" id="toast">✅ 已複製到剪貼簿！</div>
 
-        function renderCards(filter = '全部', query = '') {
-            const cardGrid = document.getElementById('cardGrid');
-            cardGrid.innerHTML = '';
-            
-            const filtered = allData.filter(p => 
-                (filter === '全部' || p.category === filter) &&
-                (p.title.toLowerCase().includes(query.toLowerCase()) || p.content.toLowerCase().includes(query.toLowerCase()))
-            );
+<style>@keyframes spin{to{transform:rotate(360deg)}}@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}</style>
 
-            filtered.forEach(p => {
-                const card = document.createElement('div');
-                card.className = "bg-white p-6 rounded-xl card-shadow border-t-4 border-purple-600 hover:scale-105 transition-transform";
-                card.innerHTML = `
-                    <span class="text-xs font-bold text-purple-600 uppercase mb-2 block">${p.category}</span>
-                    <h3 class="text-xl font-bold mb-3">${p.title}</h3>
-                    <p class="text-gray-600 text-sm mb-4 line-clamp-4">${p.content}</p>
-                    <button onclick="copyToClipboard('${p.content.replace(/'/g, "\\'")}')" class="w-full py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 font-bold">複製 Prompt</button>
-                `;
-                cardGrid.appendChild(card);
-            });
-        }
+<script>
+const SHEET_ID='1Vo-XMi0gGzSSnf2GmnzZLNOYJJZoAhOGhTg0GzG4ycA';
+const GID='1480282197';
+const CSV_URL=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=${GID}`;
 
-        function filterData(cat, btn) {
-            document.querySelectorAll('#filterBar button').forEach(b => b.className = "px-4 py-2 bg-white text-gray-600 border border-gray-200 rounded-full text-sm font-medium hover:bg-gray-100");
-            btn.className = "px-4 py-2 bg-purple-600 text-white rounded-full text-sm font-bold shadow-md";
-            renderCards(cat, document.getElementById('searchInput').value);
-        }
+let allPrompts=[], activeCat='全部', searchQ='', sortMode='default';
+const colorMap={};let colorIdx=0;
+function cc(cat){if(colorMap[cat]===undefined)colorMap[cat]=colorIdx++%8;return`cc${colorMap[cat]}`}
 
-        document.getElementById('searchInput').addEventListener('input', (e) => {
-            const activeCat = document.querySelector('#filterBar .bg-purple-600').textContent;
-            renderCards(activeCat, e.target.value);
-        });
+function parseCSV(t){
+  const rows=[];let row=[],f='',inQ=false;
+  for(let i=0;i<t.length;i++){
+    const c=t[i],nx=t[i+1];
+    if(inQ){if(c==='"'&&nx==='"'){f+='"';i++}else if(c==='"')inQ=false;else f+=c}
+    else{if(c==='"')inQ=true;else if(c===','){row.push(f.trim());f=''}
+    else if(c==='\n'||(c==='\r'&&nx==='\n')){if(c==='\r')i++;row.push(f.trim());f='';if(row.some(v=>v))rows.push(row);row=[]}
+    else f+=c}
+  }
+  if(f||row.length){row.push(f.trim());if(row.some(v=>v))rows.push(row)}
+  return rows;
+}
+function findCol(h,...kws){for(const k of kws){const i=h.findIndex(x=>x.includes(k));if(i>=0)return i}return-1}
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
 
-        function copyToClipboard(text) {
-            navigator.clipboard.writeText(text);
-            alert("Prompt 已複製到剪貼簿！");
-        }
+async function loadData(){
+  try{
+    const res=await fetch(CSV_URL);
+    if(!res.ok)throw new Error(`HTTP ${res.status}`);
+    const text=await res.text();
+    const rows=parseCSV(text);
+    if(rows.length<2)throw new Error('試算表是空的');
+    const h=rows[0].map(x=>x.toLowerCase());
+    const ci=findCol(h,'類別','分類','category','cat')>=0?findCol(h,'類別','分類','category','cat'):0;
+    const ti=findCol(h,'標題','标题','title','名稱','name')>=0?findCol(h,'標題','标题','title','名稱','name'):1;
+    const pi=findCol(h,'prompt','提示詞','提示词','提示','內容','content')>=0?findCol(h,'prompt','提示詞','提示词','提示','內容','content'):2;
+    allPrompts=rows.slice(1).filter(r=>r.length>Math.max(ci,ti,pi))
+      .map(r=>({category:(r[ci]||'其他').trim(),title:(r[ti]||'').trim(),prompt:(r[pi]||'').trim()}))
+      .filter(p=>p.prompt);
+    initAll();
+  }catch(e){
+    const msg=`<div style="grid-column:1/-1;text-align:center;padding:32px;color:var(--text2)">⚠️ ${e.message}<br><small style="color:var(--text3)">請確認 Google Sheet 已公開分享</small></div>`;
+    document.getElementById('featured-grid').innerHTML=msg;
+    document.getElementById('prompts-grid').innerHTML=msg;
+  }
+}
 
-        fetchData();
-    </script>
-</body>
-</html>
+function initAll(){
+  const cats=new Set(allPrompts.map(p=>p.category));
+  document.getElementById('h-total').textContent=allPrompts.length;
+  document.getElementById('h-cats').textContent=cats.size;
+  document.getElementById('p-total').textContent=allPrompts.length;
+  renderFeatured();
+  renderCatBar();
+  renderPrompts();
+}
+
+function renderFeatured(){
+  const shuffled=[...allPrompts].sort(()=>Math.random()-0.5).slice(0,6);
+  const g=document.getElementById('featured-grid');
+  g.innerHTML=shuffled.map((p,i)=>card(p,i)).join('');
+  bindCopy(g);
+}
+
+function renderCatBar(){
+  const cats=['全部',...new Set(allPrompts.map(p=>p.category))];
+  const bar=document.getElementById('cat-bar');
+  bar.innerHTML=cats.map(c=>`<button class="cat-pill${c===activeCat?' active':''}" data-cat="${esc(c)}">${esc(c)}</button>`).join('');
+  bar.querySelectorAll('.cat-pill').forEach(b=>{
+    b.addEventListener('click',()=>{
+      activeCat=b.dataset.cat;
+      bar.querySelectorAll('.cat-pill').forEach(x=>x.classList.toggle('active',x.dataset.cat===activeCat));
+      renderPrompts();
+    });
+  });
+}
+
+function renderPrompts(){
+  let list=allPrompts.filter(p=>{
+    const mc=activeCat==='全部'||p.category===activeCat;
+    const q=searchQ.toLowerCase();
+    const mq=!q||p.title.toLowerCase().includes(q)||p.prompt.toLowerCase().includes(q)||p.category.toLowerCase().includes(q);
+    return mc&&mq;
+  });
+  if(sortMode==='az')list=[...list].sort((a,b)=>a.title.localeCompare(b.title,'zh'));
+  if(sortMode==='cat')list=[...list].sort((a,b)=>a.category.localeCompare(b.category,'zh'));
+  document.getElementById('result-count').textContent=`顯示 ${list.length} / ${allPrompts.length} 個`;
+  const g=document.getElementById('prompts-grid');
+  g.innerHTML=list.length?list.map((p,i)=>card(p,i)).join(''):`<div style="grid-column:1/-1;text-align:center;padding:32px;color:var(--text2)">😕 沒有符合條件的 Prompt</div>`;
+  bindCopy(g);
+}
+
+function card(p,i){
+  return`<div class="card" style="animation:fadeUp 0.2s ease ${(i%6)*0.04}s both">
+    <div class="card-top"></div>
+    <div class="card-body">
+      <span class="card-cat ${cc(p.category)}">${esc(p.category)}</span>
+      <div class="card-title">${esc(p.title||'(無標題)')}</div>
+      <div class="card-preview">${esc(p.prompt)}</div>
+    </div>
+    <div class="card-foot">
+      <button class="copy-btn" data-p="${esc(p.prompt)}">複製 Prompt</button>
+    </div>
+  </div>`;
+}
+
+function bindCopy(container){
+  container.querySelectorAll('.copy-btn').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      const raw=btn.dataset.p.replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&quot;/g,'"');
+      (navigator.clipboard?navigator.clipboard.writeText(raw):Promise.resolve()).then(()=>{
+        btn.textContent='✅ 已複製！';btn.classList.add('copied');
+        const t=document.getElementById('toast');t.classList.add('show');
+        setTimeout(()=>{btn.textContent='複製 Prompt';btn.classList.remove('copied');t.classList.remove('show')},2000);
+      });
+    });
+  });
+}
+
+function goPage(name){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('page-'+name).classList.add('active');
+  document.getElementById('tab-'+name).classList.add('active');
+}
+
+document.getElementById('search-input').addEventListener('input',e=>{searchQ=e.target.value;renderPrompts()});
+document.getElementById('sort-sel').addEventListener('change',e=>{sortMode=e.target.value;renderPrompts()});
+
+loadData();
+</script>
