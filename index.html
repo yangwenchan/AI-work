@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="AI Prompt 智能寶庫 — 精選高品質的 AI 提示詞，讓你的 AI 使用效率倍增">
+<title>🚀 AI Prompt 智能寶庫</title>
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav">
+  <a class="nav-logo" href="index.html">
+    <div class="logo-icon">🚀</div>
+    AI Prompt 寶庫
+  </a>
+  <ul class="nav-links" id="navLinks">
+    <li><a href="index.html">首頁</a></li>
+    <li><a href="pages/prompts.html">Prompt 庫</a></li>
+    <li><a href="pages/about.html">關於</a></li>
+    <li><a href="https://docs.google.com/spreadsheets/d/1Vo-XMi0gGzSSnf2GmnzZLNOYJJZoAhOGhTg0GzG4ycA/edit?gid=1480282197" target="_blank" class="nav-cta">📊 資料來源</a></li>
+  </ul>
+  <button class="nav-hamburger" id="hamburger" aria-label="選單">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-badge">🧠 精選 AI 提示詞資源庫</div>
+  <h1>讓 AI 真正<br><span class="grad">為你所用</span></h1>
+  <p>收錄各類高品質 Prompt，涵蓋內容創作、程式開發、筆記整理、簡報製作等場景，一鍵複製即可使用。</p>
+  <div class="hero-actions">
+    <a class="btn btn-primary" href="pages/prompts.html">🔍 瀏覽 Prompt 庫</a>
+    <a class="btn btn-outline" href="https://docs.google.com/spreadsheets/d/1Vo-XMi0gGzSSnf2GmnzZLNOYJJZoAhOGhTg0GzG4ycA/edit?gid=1480282197" target="_blank">📊 開啟試算表</a>
+  </div>
+</section>
+
+<!-- STATS -->
+<div class="stats-row" id="statsRow">
+  <div class="stat-item"><div class="num" id="statTotal">—</div><div class="lbl">Prompt 總數</div></div>
+  <div class="stat-item"><div class="num" id="statCats">—</div><div class="lbl">分類數量</div></div>
+  <div class="stat-item"><div class="num">100%</div><div class="lbl">免費使用</div></div>
+  <div class="stat-item"><div class="num">即時</div><div class="lbl">從雲端同步</div></div>
+</div>
+
+<!-- FEATURED SECTION -->
+<section class="section">
+  <div class="section-header">
+    <h2>🔥 精選 Prompt</h2>
+    <p>從資料庫隨機推薦，每次重整都有新發現</p>
+  </div>
+  <div class="cards-grid" id="featuredGrid">
+    <div class="state-msg"><div class="spinner"></div>載入中…</div>
+  </div>
+  <div style="text-align:center; margin-top:2rem;">
+    <a class="btn btn-outline" href="pages/prompts.html">查看全部 Prompt →</a>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="section" style="padding-top:0">
+  <div class="section-header">
+    <h2>✨ 網站特色</h2>
+  </div>
+  <div class="features-grid">
+    <div class="feature-card">
+      <div class="feature-icon" style="background:#EFF6FF">🔍</div>
+      <h3>即時搜尋</h3>
+      <p>輸入關鍵字即時篩選，從標題、內容、分類全面比對。</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon" style="background:#F5F3FF">🏷️</div>
+      <h3>分類瀏覽</h3>
+      <p>依場景分類，快速找到內容創作、程式應用、筆記整理等類別。</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon" style="background:#ECFDF5">📋</div>
+      <h3>一鍵複製</h3>
+      <p>點擊按鈕直接複製完整 Prompt，貼上即可開始使用 AI。</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon" style="background:#FEF3C7">☁️</div>
+      <h3>雲端同步</h3>
+      <p>資料來自 Google Sheet，更新試算表即即時反映在網站上。</p>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <p>🚀 AI Prompt 智能寶庫 · 資料來源 <a href="https://docs.google.com/spreadsheets/d/1Vo-XMi0gGzSSnf2GmnzZLNOYJJZoAhOGhTg0GzG4ycA/edit?gid=1480282197" target="_blank">Google Sheet</a> · 以 GitHub Pages 部署</p>
+</footer>
+
+<div class="toast" id="toast"></div>
+<script src="assets/js/main.js"></script>
+<script>
+(async () => {
+  try {
+    const prompts = await fetchPrompts();
+    const cats = new Set(prompts.map(p => p.category));
+    document.getElementById('statTotal').textContent = prompts.length;
+    document.getElementById('statCats').textContent  = cats.size;
+
+    // Shuffle and take 8
+    const shuffled = [...prompts].sort(() => Math.random() - 0.5).slice(0, 8);
+    const grid = document.getElementById('featuredGrid');
+    grid.innerHTML = shuffled.map((p, i) => renderCard(p, i)).join('');
+    bindCopyBtns(grid);
+  } catch (e) {
+    document.getElementById('featuredGrid').innerHTML =
+      `<div class="state-msg">⚠️ ${e.message}<br><small>請確認 Google Sheet 已公開分享</small></div>`;
+  }
+})();
+</script>
+</body>
+</html>
