@@ -7,107 +7,81 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         .card-shadow { box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
+        .line-clamp-4 { display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
     </style>
 </head>
 <body class="bg-gray-50 text-gray-800 font-sans">
 
     <div class="max-w-6xl mx-auto px-4 py-8">
-        <!-- Header -->
         <header class="text-center mb-10">
             <h1 class="text-3xl font-bold text-gray-900 mb-4">🚀 AI Prompt 智能寶庫</h1>
             <div class="max-w-xl mx-auto">
                 <input type="text" id="searchInput" placeholder="🔍 搜尋提示詞..." 
-                    class="w-full px-4 py-3 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm">
+                    class="w-full px-4 py-3 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-500 shadow-sm">
             </div>
         </header>
 
-        <!-- Filters -->
-        <div id="filterContainer" class="flex flex-wrap justify-center gap-2 mb-10">
-            <button class="filter-btn px-4 py-2 bg-blue-600 text-white rounded-full text-sm font-medium" data-category="全部">全部</button>
+        <!-- 分類標籤 -->
+        <div id="filterBar" class="flex flex-wrap justify-center gap-3 mb-8">
+            <button class="px-4 py-2 bg-purple-600 text-white rounded-full text-sm font-bold shadow-md" onclick="filterData('全部', this)">全部</button>
+            <button class="px-4 py-2 bg-white text-gray-600 border border-gray-200 rounded-full text-sm font-medium hover:bg-gray-100" onclick="filterData('內容創作', this)">內容創作</button>
+            <button class="px-4 py-2 bg-white text-gray-600 border border-gray-200 rounded-full text-sm font-medium hover:bg-gray-100" onclick="filterData('筆記精煉', this)">筆記精煉</button>
         </div>
 
-        <!-- Cards Grid -->
         <div id="cardGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <p class="col-span-full text-center">正在從雲端資料庫讀取資料...</p>
+            <!-- 預覽資料將由 JavaScript 渲染 -->
         </div>
     </div>
 
     <script>
-        // 【重要】請將下方連結替換為您 Google Sheet 發布的 CSV 網址
-        const CSV_URL = 'YOUR_CSV_URL_HERE';
-        let allPrompts = [];
+        // 測試資料庫
+        const data = [
+            { title: "意義單詞發想", category: "內容創作", content: "將文章的重點部分，尋找一個代表性英文字母，並解釋其與文章核心意義的連結。" },
+            { title: "品牌名稱生成", category: "內容創作", content: "完成 ChatGPT 角色定義後，依據「品牌定義」與「產品介紹」發想 5 個吸引人的品牌名稱。" },
+            { title: "長文精華摘要", category: "筆記精煉", content: "為這一篇長篇文章，進行以下四個步驟：提出核心論點、列出關鍵數據、總結作者觀點、給出實踐建議。" },
+            { title: "書籍知識煉金", category: "筆記精煉", content: "請對文章啟動【銓煙煉金管線】，一次執行四步驟整合，並輸出成條列式筆記。" },
+            { title: "影片逐字稿校對", category: "內容創作", content: "你的角色是一位「逐字稿校對員」，請協助修正口語贅字並標記出重點時間軸。" }
+        ];
 
-        async function init() {
-            try {
-                const response = await fetch(CSV_URL);
-                const text = await response.text();
-                // 解析 CSV (假設第一欄標題, 第二欄分類, 第三欄內容)
-                const rows = text.split('\n').slice(1);
-                allPrompts = rows.map(row => {
-                    const cols = row.split(',');
-                    return { title: cols[0], category: cols[1], content: cols[2] };
-                }).filter(p => p.title);
-
-                // 產生分類按鈕
-                const categories = ['全部', ...new Set(allPrompts.map(p => p.category))];
-                const container = document.getElementById('filterContainer');
-                container.innerHTML = '';
-                categories.forEach(cat => {
-                    const btn = document.createElement('button');
-                    btn.className = `filter-btn px-4 py-2 ${cat === '全部' ? 'bg-blue-600' : 'bg-gray-200'} text-white rounded-full text-sm font-medium`;
-                    btn.dataset.category = cat;
-                    btn.textContent = cat;
-                    btn.onclick = () => updateUI(cat);
-                    container.appendChild(btn);
-                });
-
-                updateUI();
-            } catch (e) {
-                document.getElementById('cardGrid').innerHTML = '<p class="col-span-full text-center text-red-500">無法讀取資料庫，請檢查發布設定。</p>';
-            }
-        }
-
-        function updateUI(filter = '全部') {
-            const searchVal = document.getElementById('searchInput').value.toLowerCase();
+        function renderCards(filter = '全部', query = '') {
             const cardGrid = document.getElementById('cardGrid');
             cardGrid.innerHTML = '';
-
-            // 更新按鈕樣式
-            document.querySelectorAll('.filter-btn').forEach(btn => {
-                btn.className = btn.dataset.category === filter ? "filter-btn px-4 py-2 bg-blue-600 text-white rounded-full text-sm font-medium" : "filter-btn px-4 py-2 bg-gray-200 text-gray-700 rounded-full text-sm font-medium";
-            });
-
-            const filtered = allPrompts.filter(p => 
+            
+            const filtered = data.filter(p => 
                 (filter === '全部' || p.category === filter) &&
-                (p.title.toLowerCase().includes(searchVal) || p.content.toLowerCase().includes(searchVal))
+                (p.title.includes(query) || p.content.includes(query))
             );
 
             filtered.forEach(p => {
                 const card = document.createElement('div');
-                card.className = "bg-white p-6 rounded-xl card-shadow border-t-4 border-purple-600 flex flex-col justify-between";
+                card.className = "bg-white p-6 rounded-xl card-shadow border-t-4 border-purple-600 hover:scale-105 transition-transform";
                 card.innerHTML = `
-                    <div>
-                        <span class="text-xs font-bold text-purple-600 uppercase mb-2 block">${p.category}</span>
-                        <h3 class="text-xl font-bold mb-3">${p.title}</h3>
-                        <p class="text-gray-600 text-sm mb-4 line-clamp-4">${p.content}</p>
-                    </div>
-                    <button onclick="copyToClipboard('${p.content.replace(/'/g, "\\'")}')" class="w-full py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">複製 Prompt</button>
+                    <span class="text-xs font-bold text-purple-600 uppercase mb-2 block">${p.category}</span>
+                    <h3 class="text-xl font-bold mb-3">${p.title}</h3>
+                    <p class="text-gray-600 text-sm mb-4 line-clamp-4">${p.content}</p>
+                    <button onclick="copyToClipboard('${p.content}')" class="w-full py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 font-bold">複製 Prompt</button>
                 `;
                 cardGrid.appendChild(card);
             });
         }
 
-        function copyToClipboard(text) {
-            navigator.clipboard.writeText(text);
-            alert("已複製到剪貼簿！");
+        function filterData(cat, btn) {
+            document.querySelectorAll('#filterBar button').forEach(b => b.className = "px-4 py-2 bg-white text-gray-600 border border-gray-200 rounded-full text-sm font-medium hover:bg-gray-100");
+            btn.className = "px-4 py-2 bg-purple-600 text-white rounded-full text-sm font-bold shadow-md";
+            renderCards(cat, document.getElementById('searchInput').value);
         }
 
-        document.getElementById('searchInput').addEventListener('input', () => {
-            const activeFilter = document.querySelector('.bg-blue-600').dataset.category;
-            updateUI(activeFilter);
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            const activeCat = document.querySelector('#filterBar .bg-purple-600').textContent;
+            renderCards(activeCat, e.target.value);
         });
 
-        init();
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text);
+            alert("Prompt 已複製到剪貼簿！");
+        }
+
+        renderCards();
     </script>
 </body>
 </html>
