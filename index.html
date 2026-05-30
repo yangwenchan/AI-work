@@ -1,118 +1,93 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="AI Prompt 智能寶庫 — 精選高品質的 AI 提示詞，讓你的 AI 使用效率倍增">
-<title>🚀 AI Prompt 智能寶庫</title>
-<link rel="stylesheet" href="assets/css/style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Prompt 智能寶庫</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .card-shadow { box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
+    </style>
 </head>
-<body>
+<body class="bg-gray-50 text-gray-800 font-sans">
 
-<!-- NAV -->
-<nav class="nav">
-  <a class="nav-logo" href="index.html">
-    <div class="logo-icon">🚀</div>
-    AI Prompt 寶庫
-  </a>
-  <ul class="nav-links" id="navLinks">
-    <li><a href="index.html">首頁</a></li>
-    <li><a href="pages/prompts.html">Prompt 庫</a></li>
-    <li><a href="pages/about.html">關於</a></li>
-    <li><a href="https://docs.google.com/spreadsheets/d/1Vo-XMi0gGzSSnf2GmnzZLNOYJJZoAhOGhTg0GzG4ycA/edit?gid=1480282197" target="_blank" class="nav-cta">📊 資料來源</a></li>
-  </ul>
-  <button class="nav-hamburger" id="hamburger" aria-label="選單">
-    <span></span><span></span><span></span>
-  </button>
-</nav>
+    <div class="max-w-6xl mx-auto px-4 py-8">
+        <!-- Header -->
+        <header class="text-center mb-10">
+            <h1 class="text-3xl font-bold text-gray-900 mb-4">🚀 AI Prompt 智能寶庫</h1>
+            <div class="max-w-xl mx-auto">
+                <input type="text" id="searchInput" placeholder="🔍 搜尋提示詞..." 
+                    class="w-full px-4 py-3 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm">
+            </div>
+        </header>
 
-<!-- HERO -->
-<section class="hero">
-  <div class="hero-badge">🧠 精選 AI 提示詞資源庫</div>
-  <h1>讓 AI 真正<br><span class="grad">為你所用</span></h1>
-  <p>收錄各類高品質 Prompt，涵蓋內容創作、程式開發、筆記整理、簡報製作等場景，一鍵複製即可使用。</p>
-  <div class="hero-actions">
-    <a class="btn btn-primary" href="pages/prompts.html">🔍 瀏覽 Prompt 庫</a>
-    <a class="btn btn-outline" href="https://docs.google.com/spreadsheets/d/1Vo-XMi0gGzSSnf2GmnzZLNOYJJZoAhOGhTg0GzG4ycA/edit?gid=1480282197" target="_blank">📊 開啟試算表</a>
-  </div>
-</section>
+        <!-- Filters -->
+        <div id="filterContainer" class="flex flex-wrap justify-center gap-2 mb-10">
+            <button class="filter-btn px-4 py-2 bg-blue-600 text-white rounded-full text-sm font-medium" data-category="全部">全部</button>
+            <!-- Categories will be injected here -->
+        </div>
 
-<!-- STATS -->
-<div class="stats-row" id="statsRow">
-  <div class="stat-item"><div class="num" id="statTotal">—</div><div class="lbl">Prompt 總數</div></div>
-  <div class="stat-item"><div class="num" id="statCats">—</div><div class="lbl">分類數量</div></div>
-  <div class="stat-item"><div class="num">100%</div><div class="lbl">免費使用</div></div>
-  <div class="stat-item"><div class="num">即時</div><div class="lbl">從雲端同步</div></div>
-</div>
-
-<!-- FEATURED SECTION -->
-<section class="section">
-  <div class="section-header">
-    <h2>🔥 精選 Prompt</h2>
-    <p>從資料庫隨機推薦，每次重整都有新發現</p>
-  </div>
-  <div class="cards-grid" id="featuredGrid">
-    <div class="state-msg"><div class="spinner"></div>載入中…</div>
-  </div>
-  <div style="text-align:center; margin-top:2rem;">
-    <a class="btn btn-outline" href="pages/prompts.html">查看全部 Prompt →</a>
-  </div>
-</section>
-
-<!-- FEATURES -->
-<section class="section" style="padding-top:0">
-  <div class="section-header">
-    <h2>✨ 網站特色</h2>
-  </div>
-  <div class="features-grid">
-    <div class="feature-card">
-      <div class="feature-icon" style="background:#EFF6FF">🔍</div>
-      <h3>即時搜尋</h3>
-      <p>輸入關鍵字即時篩選，從標題、內容、分類全面比對。</p>
+        <!-- Cards Grid -->
+        <div id="cardGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <!-- Cards will be injected here -->
+        </div>
     </div>
-    <div class="feature-card">
-      <div class="feature-icon" style="background:#F5F3FF">🏷️</div>
-      <h3>分類瀏覽</h3>
-      <p>依場景分類，快速找到內容創作、程式應用、筆記整理等類別。</p>
-    </div>
-    <div class="feature-card">
-      <div class="feature-icon" style="background:#ECFDF5">📋</div>
-      <h3>一鍵複製</h3>
-      <p>點擊按鈕直接複製完整 Prompt，貼上即可開始使用 AI。</p>
-    </div>
-    <div class="feature-card">
-      <div class="feature-icon" style="background:#FEF3C7">☁️</div>
-      <h3>雲端同步</h3>
-      <p>資料來自 Google Sheet，更新試算表即即時反映在網站上。</p>
-    </div>
-  </div>
-</section>
 
-<!-- FOOTER -->
-<footer>
-  <p>🚀 AI Prompt 智能寶庫 · 資料來源 <a href="https://docs.google.com/spreadsheets/d/1Vo-XMi0gGzSSnf2GmnzZLNOYJJZoAhOGhTg0GzG4ycA/edit?gid=1480282197" target="_blank">Google Sheet</a> · 以 GitHub Pages 部署</p>
-</footer>
+    <script>
+        // 資料來源 (基於你提供的資料庫內容)
+        const prompts = [
+            { title: "意義單詞", category: "內容創作", content: "將文章的重點部分，尋找一個代表性英文字母..." },
+            { title: "品牌名稱", category: "內容創作", content: "完成 ChatGPT 角色定義後，依據「品牌定義」與「產品介紹」發想5個..." },
+            { title: "長編文章", category: "筆記精煉", content: "為這一篇長篇文章，進行以下四個步驟..." },
+            { title: "書籍精煉", category: "筆記精煉", content: "請對 @[檔名] 啟動【銓煙煉金管線】，一次執行四步驟整合..." },
+            { title: "影片清理", category: "內容創作", content: "你的角色是一位「逐字稿校對員」，不是編輯..." }
+        ];
 
-<div class="toast" id="toast"></div>
-<script src="assets/js/main.js"></script>
-<script>
-(async () => {
-  try {
-    const prompts = await fetchPrompts();
-    const cats = new Set(prompts.map(p => p.category));
-    document.getElementById('statTotal').textContent = prompts.length;
-    document.getElementById('statCats').textContent  = cats.size;
+        const cardGrid = document.getElementById('cardGrid');
+        const filterContainer = document.getElementById('filterContainer');
+        const searchInput = document.getElementById('searchInput');
 
-    // Shuffle and take 8
-    const shuffled = [...prompts].sort(() => Math.random() - 0.5).slice(0, 8);
-    const grid = document.getElementById('featuredGrid');
-    grid.innerHTML = shuffled.map((p, i) => renderCard(p, i)).join('');
-    bindCopyBtns(grid);
-  } catch (e) {
-    document.getElementById('featuredGrid').innerHTML =
-      `<div class="state-msg">⚠️ ${e.message}<br><small>請確認 Google Sheet 已公開分享</small></div>`;
-  }
-})();
-</script>
+        function renderCards(filter = '全部', search = '') {
+            cardGrid.innerHTML = '';
+            const filtered = prompts.filter(p => 
+                (filter === '全部' || p.category === filter) &&
+                (p.title.includes(search) || p.content.includes(search))
+            );
+
+            filtered.forEach(p => {
+                const card = document.createElement('div');
+                card.className = "bg-white p-6 rounded-xl card-shadow border-t-4 border-purple-600 flex flex-col justify-between";
+                card.innerHTML = `
+                    <div>
+                        <span class="text-xs font-bold text-purple-600 uppercase mb-2 block">${p.category}</span>
+                        <h3 class="text-xl font-bold mb-3">${p.title}</h3>
+                        <p class="text-gray-600 text-sm mb-4 line-clamp-4">${p.content}</p>
+                    </div>
+                    <button onclick="copyToClipboard('${p.content}')" class="w-full py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">複製 Prompt</button>
+                `;
+                cardGrid.appendChild(card);
+            });
+        }
+
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text);
+            alert("已複製到剪貼簿！");
+        }
+
+        // Initialize
+        renderCards();
+
+        // Search logic
+        searchInput.addEventListener('input', (e) => renderCards(document.querySelector('.bg-blue-600').dataset.category, e.target.value));
+
+        // Filter logic
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.replace('bg-blue-600', 'bg-gray-200'));
+                btn.classList.replace('bg-gray-200', 'bg-blue-600');
+                renderCards(btn.dataset.category, searchInput.value);
+            });
+        });
+    </script>
 </body>
 </html>
